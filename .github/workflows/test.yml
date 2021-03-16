@@ -2,9 +2,9 @@ name: Upload lamdbda zip to S3
 
 on:
   push:
-    branches: [ main ]
+    branches: [ test ]
   pull_request:
-    branches: [ main ]
+    branches: [ test ]
 
   workflow_dispatch:
 
@@ -30,11 +30,14 @@ jobs:
 
       - name: Install requirements and package lambda function
         run: |
+          pwd; ls
           python -m venv lambda
           source lambda/bin/activate
           pip install -r requirements.txt -t ./python
+          pwd; ls
           deactivate
-          zip -r ./build/python.zip ./python/
+          pwd; ls
+          zip -r ${PWD}/build/python.zip ${PWD}/python/
 
       - name: Copy zip file to the public bucket
         run: |

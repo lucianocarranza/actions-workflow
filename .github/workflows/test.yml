@@ -36,8 +36,9 @@ jobs:
           pip install -r requirements.txt -t ./python
           pwd; ls
           deactivate
+          mkdir build
           pwd; ls
-          zip -r ${PWD}/build/python.zip ${PWD}/python/
+          zip -r ./build/python.zip ./python/
 
       - name: Copy zip file to the public bucket
         run: |

@@ -1,33 +1,42 @@
-name: Automated deployment
+name: Upload lamdbda zip to S3
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Publish package to S3
+  deploy:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
       
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
-        with:          
+        with:
           python-version: '3.7'
 
-      - name: Run a multi-line script
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Install requirements and package lambda function
         run: |
-          python --version
-          pip --version
-          aws --version
+          python -m venv lambda
+          source lambda/bin/activate
+          pip install -r requirements.txt -t ./python
+          deactivate
+          zip -r ./build/python.zip ./python/
 
-
-
-
+      - name: Copy zip file to the public bucket
+        run: |
+          aws s3 sync ./build s3://cloud-sniper-artifacts-us-east-1/lambdas/
 

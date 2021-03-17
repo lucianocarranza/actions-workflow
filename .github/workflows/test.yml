@@ -34,8 +34,10 @@ jobs:
           source lambda/bin/activate
           pip install -r requirements.txt -t ./python
           deactivate
+          zip -r python.zip ./python
           mkdir build
-          zip -r ./build/python.zip ./python
+          mv python.zip ./build
+
 
       - name: Copy zip file to the public bucket
         run: |

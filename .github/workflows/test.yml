@@ -28,19 +28,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Install requirements and package lambda function
-        run: |
-          python -m venv lambda
-          source lambda/bin/activate
-          pip install -r requirements.txt -t ./python
-          deactivate
-          cd python
-          zip -r python.zip *
-          mkdir build
-          mv python.zip ./build
-
-
-      - name: Copy zip file to the public bucket
-        run: |
-          aws s3 sync ./python/build s3://cloud-sniper-artifacts-us-east-1/lambdas/
+      - name: Package and sync lambda to S3
+        uses: lucianocarranza/python-package-to-s3-action@v1
+        with:
+          package: 'numpy'
+          bucket: 'cloud-sniper-artifacts-us-east-1'
+          bucket_prefix: 'lambdas'
 

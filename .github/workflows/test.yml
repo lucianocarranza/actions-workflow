@@ -48,5 +48,5 @@ jobs:
 
           build
           package
-          ls
+          ls build/
 

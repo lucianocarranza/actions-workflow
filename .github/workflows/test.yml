@@ -21,17 +21,32 @@ jobs:
         with:
           python-version: '3.7'
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+      - name: Package Lambda Function
+        run: | 
+          INPUT_PACKAGE_NAME="numpy"
+          INPUT_WORKDIR="src"
 
-      - name: Package and sync lambda to S3
-        uses: cloud-sniper/python-package-to-s3-action@v2-alpha
-        with:
-          package_name: 'numpy'
-          bucket_name: 'cloud-sniper-artifacts-us-east-1'
-          bucket_prefix: 'lambdas'
+          build() {
+              python -m venv lambda
+              source lambda/bin/activate
+              pip install -r requirements.txt -t ./python
+              deactivate
+          }
+
+          package() {
+              cd python
+              zip -r $INPUT_PACKAGE_NAME.zip *
+              mkdir build
+              mv $INPUT_PACKAGE_NAME.zip ./build
+          }
+
+          if [ -d "$INPUT_WORKDIR/$INPUT_PACKAGE_NAME" ]; then
+              cd $INPUT_WORKDIR/$INPUT_PACKAGE_NAME
+          else
+              cd $INPUT_WORKDIR
+          fi
+
+          build
+          package
+          ls
 
